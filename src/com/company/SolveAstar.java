@@ -51,7 +51,7 @@ public class SolveAstar {
         while (!current.board.isGoal()) {
             current = pq.poll();
             assert current != null;
-            int manhattan = current.priority;
+            // int manhattan = current.priority;
             for (SlidingPuzzle nb : current.board.neighbors()) {
                 if ((current.previousNode == null || !nb.equals(current.previousNode.board)) && !visited.contains(nb)) {
 
