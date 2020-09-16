@@ -45,14 +45,36 @@ public class Main {
         System.out.println(sp.equals(sp2));*/
 
         // Testing Astar
-        SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
+        /*SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
         sp.randomizeState(1000);
+        System.out.println(sp.misplacedTiles());
         sp.printState();
         SolveAstar Astar = new SolveAstar(sp);
         System.out.println("Solution: ");
-        for (SlidingPuzzle s : Astar.solution()) {
+        *//*for (SlidingPuzzle s : Astar.solution()) {
             s.printState();
-        }
+        }*//*
+        System.out.println(Astar.moves());*/
 
+
+        // Testing Beam Search
+        // 15-puzzle, lengths of optimal solutions range from 0 to 80 single-tile moves
+        // SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
+        SlidingPuzzle sp = new SlidingPuzzle("b12 345 678", "b12 345 678");
+        int maxNodes = 10000000;
+        int beamWidth = 20;
+        sp.randomizeState(1000);
+        sp.printState();
+        BeamSearch Beam = new BeamSearch(sp, maxNodes, beamWidth);
+        Beam.solve();
+        System.out.println("Beam: ");
+        System.out.println(Beam.moves());
+        System.out.println(Beam.getExploredNodes());
+
+        AstarSearch Astar = new AstarSearch(sp, maxNodes, beamWidth);
+        Astar.solve();
+        System.out.println("Astar: ");
+        System.out.println(Astar.moves());
+        System.out.println(Astar.getExploredNodes());
     }
 }

@@ -249,10 +249,26 @@ public class SlidingPuzzle {
         return neighbors;
     }
 
+    public int misplacedTiles() {
+        int outOfPlace = 0;
+        int h = 0, w = 0;
+        for (; h < height; h++) {
+            w = 0;
+            for (; w < width; w++) {
+                if (currentState[h][w] == blank) continue;
+                int goalH = goal.get(currentState[h][w])[H];
+                int goalW = goal.get(currentState[h][w])[W];
+                if (goalH != h || goalW != w)
+                    outOfPlace++;
+            }
+        }
+        return outOfPlace;
+    }
+
     // TODO: goal is null
     public int manhattan() {
         int manhattan = 0;
-        // blank position
+        // count manhattan
         int h = 0, w = 0;
         for (; h < height; h++) {
             w = 0;
