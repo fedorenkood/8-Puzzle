@@ -18,9 +18,9 @@ public abstract class Search {
 
         public SearchNode(SlidingPuzzle board, SearchNode previousNode) {
             if ( board == null ) throw new IllegalArgumentException();
-            // TODO: new created in neighbors
-            this.board = new SlidingPuzzle(board);
-            //this.board = board;
+            // No need to create ne neighbor because new is created in neighbors function in SlidingPuzzle
+            // this.board = new SlidingPuzzle(board);
+            this.board = board;
 
             // set predecessor
             if (previousNode != null) {

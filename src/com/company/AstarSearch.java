@@ -9,9 +9,9 @@ public class AstarSearch extends Search{
 
 
     // TODO: add heuristic choice and remove beamWidth
-    public AstarSearch(SlidingPuzzle initial, int maxNodes, int beamWidth) {
+    public AstarSearch(SlidingPuzzle initial, int maxNodes) {
         super(initial, maxNodes);
-        this.beamWidth = beamWidth;
+        this.beamWidth = 3000;
         SearchNode.setTypeHeuristic("h2");
     }
 
@@ -32,12 +32,9 @@ public class AstarSearch extends Search{
             current = pq.poll();
             assert current != null;
 
-            // debugging
-            int manhattan = current.priority;
-
             // add the neighbors if they were not visited yet
             for (SlidingPuzzle nb : current.board.neighbors()) {
-                // TODO: (current.previousNode == null || !nb.equals(current.previousNode.board))
+                // Make sure that current board does not equal to its predecessor and we did not visit it.
                 if ((current.previousNode == null || !nb.equals(current.previousNode.board)) && !visited.contains(nb)) {
                     pq.add(new SearchNode(nb, current));
                     visited.add(nb);
@@ -47,17 +44,14 @@ public class AstarSearch extends Search{
                 }
             }
 
-            // debugging
-            if (visited.size() % 5000 == 0) {
-                // System.out.println(visited.size());
-            }
-
             // prune the queue
-            /*if (pq.size() > beamWidth)
-                pq = pruneQueue(pq);*/
+            // This is only for puzzles of 4*4 and more
+            // the answer will be wrong, but too many nodes will be created
+            if (pq.size() > beamWidth * 2)
+                pq = pruneQueue(pq);
 
-            // TODO: If two or more paths reach a common node, delete all those paths except for the one that reaches the common node with minimum cost.
-            // TODO: cut of the whose manhattan is too big (maybe by depth)
+            // TODO: If two or more paths reach a common node, delete all the paths that steam from the node with more moves
+            // TODO: bidirectional search. or iterative deepening
         }
         if (current.board.isGoal()) {
             solvable = true;

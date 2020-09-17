@@ -13,6 +13,7 @@ public class SlidingPuzzle {
     private static Map<Character, int[]> goal;
     private static char blank = 'b';
     private int[] blankCoordinates;
+    // remove static from these
     private static int width = 0;
     private static int height = 0;
     private static final int H = 0;
@@ -45,16 +46,24 @@ public class SlidingPuzzle {
             }
         }
 
-        // blank position
-        int h = 0, w = 0;
-        for (; h < height; h++) {
-            w = 0;
-            for (; w < width; w++) {
-                if (this.currentState[h][w] == blank) {
-                    setBlankCoordinates(new int[]{h, w});
+        this.findBlank();
+    }
+
+    SlidingPuzzle(char[][] currentState, char[][] goalState) {
+        this();
+        this.currentState = currentState;
+
+        // find coordinates of the goal state
+        if (SlidingPuzzle.goal == null) {
+            SlidingPuzzle.goal = new HashMap<>();
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    SlidingPuzzle.goal.put(goalState[h][w], new int[]{h, w});
                 }
             }
         }
+
+        this.findBlank();
     }
 
     SlidingPuzzle(SlidingPuzzle puzzle) {
@@ -72,6 +81,19 @@ public class SlidingPuzzle {
 
     public void setBlankCoordinates(int[] blankCoordinates) {
         this.blankCoordinates = blankCoordinates;
+    }
+
+    public void findBlank () {
+        // blank position
+        int h = 0, w = 0;
+        for (; h < height; h++) {
+            w = 0;
+            for (; w < width; w++) {
+                if (this.currentState[h][w] == blank) {
+                    setBlankCoordinates(new int[]{h, w});
+                }
+            }
+        }
     }
 
     public void setState(String state) {
@@ -249,6 +271,7 @@ public class SlidingPuzzle {
         return neighbors;
     }
 
+    // hamming function
     public int misplacedTiles() {
         int outOfPlace = 0;
         int h = 0, w = 0;

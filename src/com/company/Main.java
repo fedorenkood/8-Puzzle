@@ -60,10 +60,15 @@ public class Main {
         // Testing Beam Search
         // 15-puzzle, lengths of optimal solutions range from 0 to 80 single-tile moves
         // SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
-        SlidingPuzzle sp = new SlidingPuzzle("b12 345 678", "b12 345 678");
-        int maxNodes = 10000000;
-        int beamWidth = 20;
-        sp.randomizeState(1000);
+        // the outcomes are always the same. The algorithms are consistent
+        SlidingPuzzle sp = new SlidingPuzzle("h1k5 4b6c f2ge d873", "b12f 345g 678h cdek");
+
+        // TODO: read File. And read the puzzle matrix
+        // TODO: set blank
+        // SlidingPuzzle sp = new SlidingPuzzle("b12 345 678", "b12 345 678");
+        int maxNodes = 2000000;
+        int beamWidth = 1000;
+        // sp.randomizeState(1000);
         sp.printState();
         BeamSearch Beam = new BeamSearch(sp, maxNodes, beamWidth);
         Beam.solve();
@@ -71,10 +76,21 @@ public class Main {
         System.out.println(Beam.moves());
         System.out.println(Beam.getExploredNodes());
 
-        AstarSearch Astar = new AstarSearch(sp, maxNodes, beamWidth);
+
+        // testing Astar
+        /*AstarSearch Astar = new AstarSearch(sp, maxNodes);
         Astar.solve();
         System.out.println("Astar: ");
         System.out.println(Astar.moves());
-        System.out.println(Astar.getExploredNodes());
+        System.out.println(Astar.getExploredNodes());*/
+
+
+        // testing Char conversion
+        System.out.println((char) 100);
+        //System.out.println(Integer.parseInt("asd"));
+
+        // testing file reader
+        CommandReader cr = new CommandReader();
+        cr.getUserInput();
     }
 }

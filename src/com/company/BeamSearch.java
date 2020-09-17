@@ -17,6 +17,9 @@ public class BeamSearch extends Search{
     protected void solve() {
         // PriorityQueue to keep nodes in order of exploration
         PriorityQueue<SearchNode> pq = new PriorityQueue<>();
+        // Beam search explores all of the nodes in the beamWidth and saves childred into a separate
+        // PriorityQueue. Then, children are pruned, cleared and saved into pq
+        PriorityQueue<SearchNode> children = new PriorityQueue<>();
         // add HashSet to avoid repeating
         Set<SlidingPuzzle> visited = new HashSet<>();
 
@@ -30,45 +33,40 @@ public class BeamSearch extends Search{
             current = pq.poll();
             assert current != null;
 
-            // debugging
-            int manhattan = current.priority;
-
             // add the neighbors if they were not visited yet
             for (SlidingPuzzle nb : current.board.neighbors()) {
-                // TODO: (current.previousNode == null || !nb.equals(current.previousNode.board))
+                // Make sure that current board does not equal to its predecessor and we did not visit it.
                 if ((current.previousNode == null || !nb.equals(current.previousNode.board)) && !visited.contains(nb)) {
-                    pq.add(new SearchNode(nb, current));
+                    // add node to children
+                    children.add(new SearchNode(nb, current));
                     visited.add(nb);
-
                     // debugging
                     exploredNodes++;
                 }
             }
 
-            // debugging
-            if (visited.size() % 5000 == 0) {
-                // System.out.println(visited.size());
-            }
+            // prune the children when breath of the beam is explored
+            // Run when pq is empty and pass the children as parameter
+            if (pq.isEmpty())
+                pq = pruneQueue(children);
 
-            // prune the queue
-            if (pq.size() > beamWidth * 1.5)
-                pq = pruneQueue(pq);
-
-            // TODO: If two or more paths reach a common node, delete all those paths except for the one that reaches the common node with minimum cost.
-            // TODO: cut of the whose manhattan is too big (maybe by depth)
+            // TODO: If two or more paths reach a common node, delete all the paths that steam from the node with more moves
         }
         if (current.board.isGoal()) {
             solvable = true;
         }
     }
 
-    private PriorityQueue<SearchNode> pruneQueue(PriorityQueue<SearchNode> pq) {
+    private PriorityQueue<SearchNode> pruneQueue(PriorityQueue<SearchNode> children) {
         PriorityQueue<SearchNode> pruned = new PriorityQueue<>();
-        while (!pq.isEmpty() && pruned.size() < beamWidth) {
+        // children are pruned after the complete exploration of the beamWidth
+        while (!children.isEmpty() && pruned.size() < beamWidth) {
             // copy the nodes off the top of the queue until cutoff is reached
-            SearchNode child = pq.poll();
+            SearchNode child = children.poll();
             pruned.add(child);
         }
+        // clear the children. Children of the selected nodes will be stored here
+        children.clear();
         return pruned;
     }
 }
