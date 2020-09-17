@@ -20,12 +20,21 @@ public class SlidingPuzzle {
     private static final int COLUMN = 1;
     private List<SlidingPuzzle> neighbors = new ArrayList<>();
 
+    /**
+     *
+     */
     private SlidingPuzzle() {
         /*columns = 0;
         rows = 0;
         blank = 'b';*/
     }
 
+    /**
+     * @param currentState
+     * @param goalState
+     * @param blank
+     * @throws InconsistentMeasures
+     */
     // TODO: duplicate characters error
     SlidingPuzzle(char[][] currentState, char[][] goalState, char blank) throws InconsistentMeasures {
         this();
@@ -57,6 +66,9 @@ public class SlidingPuzzle {
         }
     }
 
+    /**
+     * @param puzzle
+     */
     SlidingPuzzle(SlidingPuzzle puzzle) {
         // assigning the number of rows and columns from the passed puzzle
         this.rows = puzzle.rows;
@@ -74,6 +86,11 @@ public class SlidingPuzzle {
         this.blankCoordinates = new int[]{puzzle.blankCoordinates[ROW], puzzle.blankCoordinates[COLUMN]};
     }
 
+    /**
+     * @param state
+     * @return
+     * @throws InconsistentMeasures
+     */
     private boolean vetState(char[][] state) throws InconsistentMeasures {
         int maxColumns = state[0].length;
         int maxRows = state.length;
@@ -94,14 +111,23 @@ public class SlidingPuzzle {
         return measuresConsistent;
     }
 
+    /**
+     * @return
+     */
     public int[] getBlankCoordinates() {
         return blankCoordinates;
     }
 
+    /**
+     * @param blankCoordinates
+     */
     public void setBlankCoordinates(int[] blankCoordinates) {
         this.blankCoordinates = blankCoordinates;
     }
 
+    /**
+     *
+     */
     public void findBlank () {
         // blank position
         int r = 0, c = 0;
@@ -115,9 +141,13 @@ public class SlidingPuzzle {
         }
     }
 
+    /**
+     *
+     */
     public void printStateInt() {
         StringBuilder out = new StringBuilder();
         for (int r = 0; r < rows; r++) {
+            out.append("[");
             for (int c = 0; c < columns; c++) {
                 int number = (int) currentState[r][c];
                 out.append(number);
@@ -129,11 +159,14 @@ public class SlidingPuzzle {
                     out.append(" ");
                 }
             }
-            out.append("\n");
+            out.append("]");
         }
         System.out.println(out);
     }
 
+    /**
+     *
+     */
     public void printState() {
         StringBuilder out = new StringBuilder();
         for (int r = 0; r < rows; r++) {
@@ -142,6 +175,9 @@ public class SlidingPuzzle {
         System.out.println(out);
     }
 
+    /**
+     * @param move
+     */
     public void move(String move) {
         int blankR = getBlankCoordinates()[ROW];
         int blankC = getBlankCoordinates()[COLUMN];
@@ -173,10 +209,18 @@ public class SlidingPuzzle {
         }
     }
 
+    /**
+     * @param rows
+     * @param columns
+     * @return
+     */
     private boolean isMoveValid (int rows, int columns) {
         return rows < this.rows && columns < this.columns && rows >= 0 && columns >= 0;
     }
 
+    /**
+     * @param n
+     */
     public void randomizeState(int n) {
         int moves = 0;
         // debug
@@ -217,6 +261,9 @@ public class SlidingPuzzle {
         //System.out.println(String.format("Up: %d Down: %d Left: %d Right: %d", up, down, left, right));
     }
 
+    /**
+     * @return
+     */
     // all neighboring boards
     public Iterable<SlidingPuzzle> neighbors() {
         int blankR = getBlankCoordinates()[ROW];
@@ -246,6 +293,9 @@ public class SlidingPuzzle {
         return neighbors;
     }
 
+    /**
+     * @return
+     */
     // hamming function
     public int hamming() {
         int outOfPlace = 0;
@@ -263,6 +313,9 @@ public class SlidingPuzzle {
         return outOfPlace;
     }
 
+    /**
+     * @return
+     */
     public int manhattan() {
         int manhattan = 0;
         // count manhattan
@@ -279,11 +332,18 @@ public class SlidingPuzzle {
         return manhattan;
     }
 
+    /**
+     * @return
+     */
     // is this board the goal board?
     public boolean isGoal() {
         return manhattan() == 0;
     }
 
+    /**
+     * @param o
+     * @return
+     */
     // does this board equal o
     @Override
     public boolean equals(Object o) {
@@ -297,6 +357,9 @@ public class SlidingPuzzle {
         return result;
     }
 
+    /**
+     * @return
+     */
     @Override
     public int hashCode() {
         int result = Arrays.hashCode(currentState);

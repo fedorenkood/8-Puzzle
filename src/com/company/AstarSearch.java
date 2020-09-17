@@ -7,8 +7,6 @@ import java.util.Set;
 public class AstarSearch extends Search{
     private int beamWidth;
 
-
-    // TODO: add heuristic choice and remove beamWidth
     public AstarSearch(SlidingPuzzle initial, int maxNodes, String heuristic) {
         super(initial, maxNodes);
         this.beamWidth = 3000;
@@ -47,8 +45,9 @@ public class AstarSearch extends Search{
             // prune the queue
             // This is only for puzzles of 4*4 and more
             // the answer will be wrong, but too many nodes will be created
-            if (pq.size() > beamWidth * 2)
-                pq = pruneQueue(pq);
+            // TODO: remove Pruning
+            /*if (pq.size() > beamWidth * 2)
+                pq = pruneQueue(pq);*/
 
             // TODO: If two or more paths reach a common node, delete all the paths that steam from the node with more moves
             // TODO: bidirectional search. or iterative deepening

@@ -5,6 +5,9 @@ import org.w3c.dom.Node;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ *
+ */
 public abstract class Search {
     protected abstract void solve();
 
@@ -16,6 +19,10 @@ public abstract class Search {
         protected int priority;
         protected static String typeHeuristic = "h2";
 
+        /**
+         * @param board initial board
+         * @param previousNode previous board
+         */
         public SearchNode(SlidingPuzzle board, SearchNode previousNode) {
             if ( board == null ) throw new IllegalArgumentException();
             // No need to create ne neighbor because new is created in neighbors function in SlidingPuzzle
@@ -39,7 +46,9 @@ public abstract class Search {
             this.priority = this.moves + this.heuristic;
         }
 
-        // set heuristic in constructor for Search
+        /**
+         * @param typeHeuristic set heuristic in constructor for Search
+         */
         public static void setTypeHeuristic(String typeHeuristic) {
             SearchNode.typeHeuristic = typeHeuristic;
         }
@@ -63,29 +72,42 @@ public abstract class Search {
     protected boolean solvable = false;
     protected List<SlidingPuzzle> dequer = new ArrayList<>();
 
+    /**
+     * @param initial
+     * @param maxNodes
+     */
     public Search(SlidingPuzzle initial, int maxNodes) {
         this.initial = initial;
         this.maxNodes = maxNodes;
     }
 
-    // is the initial board solvable? (see below)
+    /**
+     * is the initial board solvable? (see below)
+     * @return whether the board is solvable
+     */
     public boolean isSolvable() {
         return solvable;
     }
 
-    // min number of moves to solve initial board
+    /**
+     * @return min number of moves to solve initial board
+     */
     public int moves() {
         if(isSolvable())
             return current.moves;
         else return -1;
     }
 
-    // numOfNodesExplored
+    /**
+     * @return numOfNodesExplored
+     */
     public int getExploredNodes() {
         return exploredNodes;
     }
 
-    // sequence of boards in a shortest solution
+    /**
+     * @return sequence of boards in a shortest solution
+     */
     public Iterable<SlidingPuzzle> solution() {
         // solve
         this.solve();

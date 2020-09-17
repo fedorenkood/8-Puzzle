@@ -49,7 +49,7 @@ public class BeamSearch extends Search{
             // Run when pq is empty and pass the children as parameter
             if (pq.isEmpty())
                 pq = pruneQueue(children);
-
+            // TODO: maybe do two iterations without pruning children?
             // TODO: If two or more paths reach a common node, delete all the paths that steam from the node with more moves
         }
         if (current.board.isGoal()) {
@@ -57,6 +57,10 @@ public class BeamSearch extends Search{
         }
     }
 
+    /**
+     * @param children after the expansion of all the nodes
+     * @return new pruned queue
+     */
     private PriorityQueue<SearchNode> pruneQueue(PriorityQueue<SearchNode> children) {
         PriorityQueue<SearchNode> pruned = new PriorityQueue<>();
         // children are pruned after the complete exploration of the beamWidth

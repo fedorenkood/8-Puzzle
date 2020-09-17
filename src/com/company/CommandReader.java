@@ -4,12 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
+/**
+ *
+ */
 public class CommandReader {
     SlidingPuzzle board;
     int nodesLimit;
@@ -30,6 +34,8 @@ public class CommandReader {
                 System.exit(0);
             else if (args[0].equalsIgnoreCase("printState"))
                 printState();
+            else if (args[0].equalsIgnoreCase("printStateInt"))
+                printStateInt();
             else
                 invalidCommand();
         }
@@ -169,11 +175,18 @@ public class CommandReader {
     }
 
 
+    /**
+     * @param nodesLimit
+     */
     private void maxNodes(int nodesLimit) {
         this.nodesLimit = nodesLimit;
         System.out.println("\nNodes Limit is Set to: " + nodesLimit);
     }
 
+
+    /**
+     * @param direction
+     */
     private void move(String direction) {
         if (board != null) {
             board.move(direction);
@@ -183,6 +196,10 @@ public class CommandReader {
         }
     }
 
+
+    /**
+     * @param heuristic
+     */
     private void solveAStar(String heuristic) {
         if (board != null) {
             AstarSearch Astar = new AstarSearch(board, this.nodesLimit, heuristic);
@@ -196,6 +213,9 @@ public class CommandReader {
         }
     }
 
+    /**
+     * @param beamWidth
+     */
     private void solveBeam(int beamWidth) {
         if (board != null) {
             BeamSearch Beam = new BeamSearch(board, this.nodesLimit, beamWidth);
@@ -209,6 +229,9 @@ public class CommandReader {
         }
     }
 
+    /**
+     * @param rows
+     */
     private void setState(String[] rows) {
         // System.out.println("Note: blank is the first element in the ordered queue of your input, unless specified");
         try {
@@ -223,6 +246,9 @@ public class CommandReader {
 
     }
 
+    /**
+     *
+     */
     private void printState() {
         if (board != null) {
             System.out.println("\nState: ");
@@ -232,33 +258,80 @@ public class CommandReader {
         }
     }
 
-    private void randomizeState(int numMoves) {
+    /**
+     *
+     */
+    private void printStateInt() {
         if (board != null) {
-            board.randomizeState(numMoves);
-            System.out.println("\nRandomized by " + numMoves + " of moves:");
-            board.printState();
+            System.out.println("\nState: ");
+            board.printStateInt();
         } else {
             System.out.println("Board is undefined.");
         }
     }
 
+    /**
+     * @param numMoves
+     */
+    private void randomizeState(int numMoves) {
+        if (board != null) {
+            board.randomizeState(numMoves);
+            System.out.println("\nRandomized by " + numMoves + " of moves:");
+        } else {
+            System.out.println("Board is undefined.");
+        }
+    }
 
+    /**
+     * @param matrixFile
+     */
     public void matrixPuzzleReader(String matrixFile) {
         try {
-            Scanner matrixScanner = new Scanner(new File(matrixFile));
+            File root = new File(Thread.currentThread().getContextClassLoader().getResource("").toURI());
+            File file = new File(root, matrixFile);
+            Scanner matrixScanner = new Scanner(file);
             matrixScanner.useDelimiter("\n");
+            int columns = Integer.parseInt(matrixScanner.nextLine().split(" ")[0]);
+            // TODO: what if it has dimentions for rows
+            char[][] currentState = new char[columns][];
+            int r = 0;
             while (matrixScanner.hasNext()) {
+                // set the scanner for the row
                 String matrixString = matrixScanner.nextLine();
                 Scanner lineScanner = new Scanner(matrixString);
-                System.out.println(matrixScanner.nextLine());
+                // Scan the row and save all the inputs into char array
+                char[] colArray = new char[columns];
+                int c = 0;
+                while (lineScanner.hasNextInt()) {
+                    colArray[c] = (char) lineScanner.nextInt();
+                    c++;
+                }
+
+                // save the char array into board array
+                currentState[r] = colArray;
+                r++;
             }
-        } catch (FileNotFoundException e) {
+
+            // create the board with newly scanned from file
+            char[][] goalState = CommandReader.findGoal(currentState, (char) 0);
+            this.board = new SlidingPuzzle(currentState, goalState, (char) 0);
+            System.out.println("\nState is set to: ");
+            board.printStateInt();
+
+        } catch (FileNotFoundException | URISyntaxException e) {
             e.printStackTrace();
+        } catch (InconsistentMeasures inconsistentMeasures) {
+            System.out.println(inconsistentMeasures.getMessage());
         }
 
     }
 
 
+    /**
+     * @param rows
+     * @return
+     * @throws InconsistentMeasures
+     */
     public static char[][] stringPuzzleReader(String[] rows) throws InconsistentMeasures {
         int maxColumns = rows[0].length();
         int maxRows = rows.length;
@@ -282,6 +355,11 @@ public class CommandReader {
         return charState;
     }
 
+    /**
+     * @param state
+     * @param blank
+     * @return
+     */
     public static char[][] findGoal(char[][] state, Character blank) {
         int maxColumns = state[0].length;
         int maxRows = state.length;
@@ -290,25 +368,26 @@ public class CommandReader {
 
         for (int r = 0; r < maxRows; r++) {
             for (int c = 0; c < maxColumns; c++) {
-                priorityQueue.add(state[r][c]);
+                priorityQueue.add((state[r][c]));
+            }
+        }
+        int r = 0;
+        int c = 0;
+        goal[r][c] = blank;
+        c++;
+        while (!priorityQueue.isEmpty()) {
+            char current = priorityQueue.poll();
+            if (blank == current) continue;
+
+            goal[r][c] = current;
+            if (c == maxColumns - 1) {
+                r++;
+                c = 0;
+            } else {
+                c++;
             }
         }
 
-        for (int r = 0; r < maxRows; r++) {
-            for (int c = 0; c < maxColumns; c++) {
-
-                if (priorityQueue.size() > 0) {
-
-                    if (blank != null && r == 0 && c == 0) {
-                        goal[r][c] = blank;
-                    } else {
-                        char current = priorityQueue.poll();
-                        if (current != blank)
-                            goal[r][c] = current;
-                    }
-                }
-            }
-        }
         return goal;
     }
 

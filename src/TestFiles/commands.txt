@@ -1,13 +1,27 @@
 setState <b12 345 678>
 randomizeState <1000>
+printState
 maxNodes <1000000>
 solve A-star <h1>
 solve A-star <h2>
 solve beam <20>
+solve beam <22>
+solve beam <24>
+solve beam <26>
+solve beam <28>
+solve beam <30>
+solve beam <32>
 
 
-setState <b124 5678 9cde fdhi>
+setState <b123 4567 89cd efgh>
+printStateInt
 randomizeState <1000>
+printStateInt
 maxNodes <2000000>
+solve beam <1000>
+
+
+readMatrixFile <TestFiles/puzzle04.txt>
+maxNodes <2000000>
+solve beam <40>
 solve A-star <h2>
-solve beam <20>

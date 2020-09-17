@@ -64,7 +64,7 @@ public class Main {
         // 15-puzzle, lengths of optimal solutions range from 0 to 80 single-tile moves
         // SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
         // the outcomes are always the same. The algorithms are consistent
-        String state = "h1k5 4b6c f2ge d873";
+        /*String state = "h1k5 4b6c f2ge d873";
         String goal = "b12f 345g 678h cdek";
         SlidingPuzzle sp = null;
         try {
@@ -82,7 +82,7 @@ public class Main {
         Beam.solve();
         System.out.println("Beam: ");
         System.out.println(Beam.moves());
-        System.out.println(Beam.getExploredNodes());
+        System.out.println(Beam.getExploredNodes());*/
 
 
         // testing Astar
@@ -117,8 +117,9 @@ public class Main {
         // TODO: solve problem
         // TODO: read matrix
         // TODO: output ints
+        // TODO: everything must look nice
 
-        /*CommandReader commandReader = new CommandReader();
+        CommandReader commandReader = new CommandReader();
         File root = null;
         try {
             root = new File(Thread.currentThread().getContextClassLoader().getResource("").toURI());
@@ -126,6 +127,6 @@ public class Main {
             commandReader.getFileInput(file);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }
