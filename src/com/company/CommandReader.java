@@ -6,11 +6,17 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class CommandReader {
+    SlidingPuzzle board;
+    int nodesLimit;
 
     CommandReader() {
+        board = null;
+        nodesLimit = 20000000;
     }
 
     /**
@@ -77,10 +83,7 @@ public class CommandReader {
         else if (args.length >= 4) {
             if (args[0].equalsIgnoreCase("setState")) {
                 String[] rows = new String[args.length - 1];
-                for (int i = 0; i < args.length; i++) {
-                    if (i != 0)
-                        rows[i] = args [i + 1];
-                }
+                System.arraycopy(args, 1, rows, 0, args.length - 1);
                 setState(rows);
             }
             else
@@ -93,12 +96,12 @@ public class CommandReader {
 
     /**
      * continuously retrieves the commands the user feeds to the program
-     * @param filename
+     * @param file
      */
-    public void getFileInput(String filename) {
+    public void getFileInput(File file) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(filename));
+            scanner = new Scanner(file);
             scanner.useDelimiter("\n");
             while (scanner.hasNextLine()) {
 
@@ -167,31 +170,76 @@ public class CommandReader {
 
 
     private void maxNodes(int nodesLimit) {
-        System.out.println("maxNodes " + nodesLimit);
+        this.nodesLimit = nodesLimit;
+        System.out.println("\nNodes Limit is Set to: " + nodesLimit);
     }
 
     private void move(String direction) {
-        System.out.println("move " + direction);
+        if (board != null) {
+            board.move(direction);
+            System.out.println("\nMove: " + direction);
+        } else {
+            System.out.println("Board is undefined.");
+        }
     }
 
     private void solveAStar(String heuristic) {
-        System.out.println("solveAStar " + heuristic);
+        if (board != null) {
+            AstarSearch Astar = new AstarSearch(board, this.nodesLimit, heuristic);
+            Astar.solve();
+            System.out.println("\nAstar: ");
+            System.out.println("Heuristic: " + heuristic);
+            System.out.println("Num moves: " + Astar.moves());
+            System.out.println("Explored nodes: " + Astar.getExploredNodes());
+        } else {
+            System.out.println("Board is undefined.");
+        }
     }
 
     private void solveBeam(int beamWidth) {
-        System.out.println("solveBeam " + beamWidth);
+        if (board != null) {
+            BeamSearch Beam = new BeamSearch(board, this.nodesLimit, beamWidth);
+            Beam.solve();
+            System.out.println("\nBeam: ");
+            System.out.println("Beam width: " + beamWidth);
+            System.out.println("Num moves: " + Beam.moves());
+            System.out.println("Explored nodes: " + Beam.getExploredNodes());
+        } else {
+            System.out.println("Board is undefined.");
+        }
     }
 
     private void setState(String[] rows) {
-        System.out.println("setState " + Arrays.toString(rows));
+        // System.out.println("Note: blank is the first element in the ordered queue of your input, unless specified");
+        try {
+            char[][] currentState = CommandReader.stringPuzzleReader(rows);
+            char[][] goalState = CommandReader.findGoal(currentState, 'b');
+            this.board = new SlidingPuzzle(currentState, goalState, 'b');
+            System.out.println("\nState is set to: ");
+            board.printState();
+        } catch (InconsistentMeasures inconsistentMeasures) {
+            System.out.println(inconsistentMeasures.getMessage());
+        }
+
     }
 
     private void printState() {
-        System.out.println("printState");
+        if (board != null) {
+            System.out.println("\nState: ");
+            board.printState();
+        } else {
+            System.out.println("Board is undefined.");
+        }
     }
 
     private void randomizeState(int numMoves) {
-        System.out.println("randomizeState " + numMoves);
+        if (board != null) {
+            board.randomizeState(numMoves);
+            System.out.println("\nRandomized by " + numMoves + " of moves:");
+            board.printState();
+        } else {
+            System.out.println("Board is undefined.");
+        }
     }
 
 
@@ -232,6 +280,36 @@ public class CommandReader {
             throw new InconsistentMeasures("The measures are too small");
         }
         return charState;
+    }
+
+    public static char[][] findGoal(char[][] state, Character blank) {
+        int maxColumns = state[0].length;
+        int maxRows = state.length;
+        PriorityQueue<Character> priorityQueue = new PriorityQueue<>();
+        char[][] goal = new char[maxRows][maxColumns];
+
+        for (int r = 0; r < maxRows; r++) {
+            for (int c = 0; c < maxColumns; c++) {
+                priorityQueue.add(state[r][c]);
+            }
+        }
+
+        for (int r = 0; r < maxRows; r++) {
+            for (int c = 0; c < maxColumns; c++) {
+
+                if (priorityQueue.size() > 0) {
+
+                    if (blank != null && r == 0 && c == 0) {
+                        goal[r][c] = blank;
+                    } else {
+                        char current = priorityQueue.poll();
+                        if (current != blank)
+                            goal[r][c] = current;
+                    }
+                }
+            }
+        }
+        return goal;
     }
 
 

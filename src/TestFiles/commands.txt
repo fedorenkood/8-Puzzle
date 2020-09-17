@@ -1,0 +1,13 @@
+setState <b12 345 678>
+randomizeState <1000>
+maxNodes <1000000>
+solve A-star <h1>
+solve A-star <h2>
+solve beam <20>
+
+
+setState <b124 5678 9cde fdhi>
+randomizeState <1000>
+maxNodes <2000000>
+solve A-star <h2>
+solve beam <20>

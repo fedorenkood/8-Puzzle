@@ -10,8 +10,8 @@ import static java.util.Map.entry;
 public class SlidingPuzzle {
     private char[][] currentState;
     // Storing the coordinates of the goal state
-    private static Map<Character, int[]> goal;
-    private static char blank = 'b';
+    private Map<Character, int[]> goal;
+    private char blank = '0';
     private int[] blankCoordinates;
     // remove static from these
     private int columns = 0;
@@ -27,35 +27,51 @@ public class SlidingPuzzle {
     }
 
     // TODO: duplicate characters error
-    SlidingPuzzle(char[][] currentState, char[][] goalState) {
+    SlidingPuzzle(char[][] currentState, char[][] goalState, char blank) throws InconsistentMeasures {
         this();
         // assigning the number of rows and columns from the passed array
         this.rows = currentState.length;
         this.columns = currentState[0].length;
+        this.blank = blank;
 
         // vetting both arrays before creating new arrays
-        this.currentState = new char[rows][columns];
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(currentState[r], 0, this.currentState[r], 0, columns);
-        }
+        boolean consistent = this.vetState(currentState) && this.vetState(goalState);
 
-        // find coordinates of the goal state
-        if (SlidingPuzzle.goal == null) {
-            SlidingPuzzle.goal = new HashMap<>();
+        // copy the elements if consistent
+        if (consistent) {
+            this.currentState = new char[rows][columns];
             for (int r = 0; r < rows; r++) {
-                for (int c = 0; c < columns; c++) {
-                    SlidingPuzzle.goal.put(goalState[r][c], new int[]{r, c});
+                System.arraycopy(currentState[r], 0, this.currentState[r], 0, columns);
+            }
+
+            // find coordinates of the goal state
+            if (this.goal == null) {
+                this.goal = new HashMap<>();
+                for (int r = 0; r < rows; r++) {
+                    for (int c = 0; c < columns; c++) {
+                        this.goal.put(goalState[r][c], new int[]{r, c});
+                    }
                 }
             }
+            this.findBlank();
         }
-
-        this.findBlank();
     }
 
     SlidingPuzzle(SlidingPuzzle puzzle) {
-        this(puzzle.currentState, puzzle.currentState);
+        // assigning the number of rows and columns from the passed puzzle
+        this.rows = puzzle.rows;
+        this.columns = puzzle.columns;
+        this.blank = puzzle.blank;
+
+        this.currentState = new char[rows][columns];
+        for (int r = 0; r < rows; r++) {
+            System.arraycopy(puzzle.currentState[r], 0, this.currentState[r], 0, columns);
+        }
+
+        // I do not need to copy the goal state since it is the same for all the nodes of the same type
+        this.goal = puzzle.goal;
+
         this.blankCoordinates = new int[]{puzzle.blankCoordinates[ROW], puzzle.blankCoordinates[COLUMN]};
-        // this.neighbors.addAll(puzzle.neighbors);
     }
 
     private boolean vetState(char[][] state) throws InconsistentMeasures {
@@ -99,10 +115,29 @@ public class SlidingPuzzle {
         }
     }
 
+    public void printStateInt() {
+        StringBuilder out = new StringBuilder();
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
+                int number = (int) currentState[r][c];
+                out.append(number);
+                if (number < 10) {
+                    out.append("   ");
+                } else if (number < 100) {
+                    out.append("  ");
+                } else {
+                    out.append(" ");
+                }
+            }
+            out.append("\n");
+        }
+        System.out.println(out);
+    }
+
     public void printState() {
         StringBuilder out = new StringBuilder();
-        for (int i = 0; i < rows; i++) {
-            out.append(Arrays.toString(currentState[i])).append("\n");
+        for (int r = 0; r < rows; r++) {
+            out.append(Arrays.toString(currentState[r])).append("\n");
         }
         System.out.println(out);
     }
@@ -211,7 +246,6 @@ public class SlidingPuzzle {
         return neighbors;
     }
 
-    // TODO: goal is null
     // hamming function
     public int hamming() {
         int outOfPlace = 0;
@@ -229,7 +263,6 @@ public class SlidingPuzzle {
         return outOfPlace;
     }
 
-    // TODO: goal is null
     public int manhattan() {
         int manhattan = 0;
         // count manhattan
