@@ -61,7 +61,14 @@ public class Main {
         // 15-puzzle, lengths of optimal solutions range from 0 to 80 single-tile moves
         // SlidingPuzzle sp = new SlidingPuzzle("b12f 345g 678h cdek", "b12f 345g 678h cdek");
         // the outcomes are always the same. The algorithms are consistent
-        SlidingPuzzle sp = new SlidingPuzzle("h1k5 4b6c f2ge d873", "b12f 345g 678h cdek");
+        String state = "h1k5 4b6c f2ge d873";
+        String goal = "b12f 345g 678h cdek";
+        SlidingPuzzle sp = null;
+        try {
+            sp = new SlidingPuzzle(CommandReader.stringPuzzleReader(state.split(" ")), CommandReader.stringPuzzleReader(goal.split(" ")));
+        } catch (InconsistentMeasures inconsistentMeasures) {
+            inconsistentMeasures.printStackTrace();
+        }
 
         // TODO: read File. And read the puzzle matrix
         // TODO: set blank
@@ -86,11 +93,23 @@ public class Main {
 
 
         // testing Char conversion
-        System.out.println((char) 100);
+        //System.out.println((char) 100);
         //System.out.println(Integer.parseInt("asd"));
+        /*String s = "asa dfb asb dfb";
+        System.out.println(s.split(" ").length);*/
 
         // testing file reader
         CommandReader cr = new CommandReader();
-        cr.getUserInput();
+
+        String s = "asa dfb asb dfb";
+        try {
+            char[][] testBoard = CommandReader.stringPuzzleReader(s.split(" "));
+            for (char[] line: testBoard) {
+                System.out.println(Arrays.toString(line));
+            }
+        } catch (InconsistentMeasures inconsistentMeasures) {
+            inconsistentMeasures.printStackTrace();
+        }
+        //cr.getUserInput();
     }
 }

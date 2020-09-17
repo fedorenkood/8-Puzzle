@@ -9,10 +9,10 @@ public class AstarSearch extends Search{
 
 
     // TODO: add heuristic choice and remove beamWidth
-    public AstarSearch(SlidingPuzzle initial, int maxNodes) {
+    public AstarSearch(SlidingPuzzle initial, int maxNodes, String heuristic) {
         super(initial, maxNodes);
         this.beamWidth = 3000;
-        SearchNode.setTypeHeuristic("h2");
+        SearchNode.setTypeHeuristic(heuristic);
     }
 
     @Override

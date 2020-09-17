@@ -14,51 +14,37 @@ public class SlidingPuzzle {
     private static char blank = 'b';
     private int[] blankCoordinates;
     // remove static from these
-    private static int width = 0;
-    private static int height = 0;
-    private static final int H = 0;
-    private static final int W = 1;
+    private int columns = 0;
+    private int rows = 0;
+    private static final int ROW = 0;
+    private static final int COLUMN = 1;
     private List<SlidingPuzzle> neighbors = new ArrayList<>();
 
     private SlidingPuzzle() {
-        /*width = 0;
-        height = 0;
+        /*columns = 0;
+        rows = 0;
         blank = 'b';*/
     }
 
     // TODO: duplicate characters error
-    SlidingPuzzle(String currentState, String goalState) {
-        this();
-        this.setState(currentState);
-
-        // find coordinates of the goal state
-        if (SlidingPuzzle.goal == null) {
-            SlidingPuzzle.goal = new HashMap<>();
-            try {
-                char[][] goalArray = SlidingPuzzle.convertState(goalState);
-                for (int h = 0; h < height; h++) {
-                    for (int w = 0; w < width; w++) {
-                        SlidingPuzzle.goal.put(goalArray[h][w], new int[]{h, w});
-                    }
-                }
-            } catch (InconsistentMeasures inconsistentMeasures) {
-                inconsistentMeasures.printStackTrace();
-            }
-        }
-
-        this.findBlank();
-    }
-
     SlidingPuzzle(char[][] currentState, char[][] goalState) {
         this();
-        this.currentState = currentState;
+        // assigning the number of rows and columns from the passed array
+        this.rows = currentState.length;
+        this.columns = currentState[0].length;
+
+        // vetting both arrays before creating new arrays
+        this.currentState = new char[rows][columns];
+        for (int r = 0; r < rows; r++) {
+            System.arraycopy(currentState[r], 0, this.currentState[r], 0, columns);
+        }
 
         // find coordinates of the goal state
         if (SlidingPuzzle.goal == null) {
             SlidingPuzzle.goal = new HashMap<>();
-            for (int h = 0; h < height; h++) {
-                for (int w = 0; w < width; w++) {
-                    SlidingPuzzle.goal.put(goalState[h][w], new int[]{h, w});
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    SlidingPuzzle.goal.put(goalState[r][c], new int[]{r, c});
                 }
             }
         }
@@ -67,12 +53,29 @@ public class SlidingPuzzle {
     }
 
     SlidingPuzzle(SlidingPuzzle puzzle) {
-        this.currentState = new char[height][width];
-        for (int h = 0; h < height; h++) {
-            System.arraycopy(puzzle.currentState[h], 0, this.currentState[h], 0, width);
-        }
-        this.blankCoordinates = new int[]{puzzle.blankCoordinates[H], puzzle.blankCoordinates[W]};
+        this(puzzle.currentState, puzzle.currentState);
+        this.blankCoordinates = new int[]{puzzle.blankCoordinates[ROW], puzzle.blankCoordinates[COLUMN]};
         // this.neighbors.addAll(puzzle.neighbors);
+    }
+
+    private boolean vetState(char[][] state) throws InconsistentMeasures {
+        int maxColumns = state[0].length;
+        int maxRows = state.length;
+
+        boolean measuresConsistent = true;
+
+        for (int r = 0; r < maxRows; r++) {
+            if (maxColumns != state[r].length || maxRows != rows || maxColumns != columns) {
+                measuresConsistent = false;
+                throw new InconsistentMeasures("columns is wrong at " + r);
+            }
+        }
+
+        if (maxColumns < 3 || maxRows < 3) {
+            measuresConsistent = false;
+            throw new InconsistentMeasures("The measures are too small");
+        }
+        return measuresConsistent;
     }
 
     public int[] getBlankCoordinates() {
@@ -85,109 +88,46 @@ public class SlidingPuzzle {
 
     public void findBlank () {
         // blank position
-        int h = 0, w = 0;
-        for (; h < height; h++) {
-            w = 0;
-            for (; w < width; w++) {
-                if (this.currentState[h][w] == blank) {
-                    setBlankCoordinates(new int[]{h, w});
+        int r = 0, c = 0;
+        for (; r < rows; r++) {
+            c = 0;
+            for (; c < columns; c++) {
+                if (this.currentState[r][c] == blank) {
+                    setBlankCoordinates(new int[]{r, c});
                 }
             }
         }
-    }
-
-    public void setState(String state) {
-        try {
-            this.currentState = SlidingPuzzle.convertState(state);
-        } catch (InconsistentMeasures inconsistentMeasures) {
-            inconsistentMeasures.printStackTrace();
-        }
-    }
-
-    private static char[][] convertState(String state) throws InconsistentMeasures {
-
-        int[] measures = SlidingPuzzle.evalMeasures(state);
-        if (height == 0 && width == 0) {
-            width = (measures[W]);
-            height = (measures[H]);
-        } else if (width != measures[W] && height != measures[H]) {
-            throw new InconsistentMeasures("Measures of the state are wrong.");
-        }
-
-        int currentWidth = 0;
-        int currentHeight = 0;
-        char[][] charState = new char[height][width];
-        for (int i = 0; i < state.length(); i++) {
-
-            if (state.charAt(i) == ' ') {
-                currentWidth = 0;
-                currentHeight++;
-            } else {
-                charState[currentHeight][currentWidth] = state.charAt(i);
-                currentWidth++;
-            }
-        }
-        return charState;
-    }
-
-    private static int[] evalMeasures(String state) throws InconsistentMeasures {
-        int currentWidth = 0;
-        int currentHeight = 1;
-        int maxWidth = 0;
-        for (int i = 0; i < state.length(); i++) {
-            if (state.charAt(i) == ' ') {
-
-                if (maxWidth == 0) {
-                    maxWidth = currentWidth;
-                } else if (maxWidth != currentWidth) {
-                    throw new InconsistentMeasures("Width is wrong at " + currentHeight);
-                }
-                currentWidth = 0;
-                ++currentHeight;
-            } else {
-                currentWidth++;
-            }
-        }
-
-        if (maxWidth != currentWidth || maxWidth == 0) {
-            throw new InconsistentMeasures("Width is wrong at " + currentHeight);
-        }
-
-        if (maxWidth < 3 || currentHeight < 3) {
-            throw new InconsistentMeasures("The measures are too small");
-        }
-        return new int[]{currentHeight, maxWidth};
     }
 
     public void printState() {
         StringBuilder out = new StringBuilder();
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < rows; i++) {
             out.append(Arrays.toString(currentState[i])).append("\n");
         }
         System.out.println(out);
     }
 
     public void move(String move) {
-        int blankH = getBlankCoordinates()[H];
-        int blankW = getBlankCoordinates()[W];
+        int blankR = getBlankCoordinates()[ROW];
+        int blankC = getBlankCoordinates()[COLUMN];
 
         // Move the char
         char toMove = ' ';
-        int charH = blankH;
-        int charW = blankW;
+        int charR = blankR;
+        int charC = blankC;
 
         switch (move.toLowerCase()) {
-            case "up" -> charH--;
-            case "down" -> charH++;
-            case "left" -> charW--;
-            case "right" -> charW++;
+            case "up" -> charR--;
+            case "down" -> charR++;
+            case "left" -> charC--;
+            case "right" -> charC++;
         }
 
-        if (isMoveValid(charH, charW)) {
-            toMove = currentState[charH][charW];
-            currentState[blankH][blankW] = toMove;
-            currentState[charH][charW] = blank;
-            setBlankCoordinates(new int[]{charH, charW});
+        if (isMoveValid(charR, charC)) {
+            toMove = currentState[charR][charC];
+            currentState[blankR][blankC] = toMove;
+            currentState[charR][charC] = blank;
+            setBlankCoordinates(new int[]{charR, charC});
         } else {
             try {
                 throw new InvalidMove("Move " + move + " is invalid");
@@ -198,8 +138,8 @@ public class SlidingPuzzle {
         }
     }
 
-    private boolean isMoveValid (int height, int width) {
-        return height < SlidingPuzzle.height && width < SlidingPuzzle.width && height >= 0 && width >= 0;
+    private boolean isMoveValid (int rows, int columns) {
+        return rows < this.rows && columns < this.columns && rows >= 0 && columns >= 0;
     }
 
     public void randomizeState(int n) {
@@ -209,17 +149,17 @@ public class SlidingPuzzle {
         while (moves < n) {
             int rand = (int) (Math.random() * 4.0);
 
-            int charH = getBlankCoordinates()[H];
-            int charW = getBlankCoordinates()[W];
+            int charR = getBlankCoordinates()[ROW];
+            int charC = getBlankCoordinates()[COLUMN];
 
             switch (rand) {
-                case 2 -> charH--;
-                case 3 -> charH++;
-                case 0 -> charW--;
-                case 1 -> charW++;
+                case 2 -> charR--;
+                case 3 -> charR++;
+                case 0 -> charC--;
+                case 1 -> charC++;
             }
 
-            if (isMoveValid(charH, charW)) {
+            if (isMoveValid(charR, charC)) {
                 switch (rand) {
                     case 2 -> this.move("up");
                     case 3 -> this.move("down");
@@ -244,25 +184,25 @@ public class SlidingPuzzle {
 
     // all neighboring boards
     public Iterable<SlidingPuzzle> neighbors() {
-        int blankH = getBlankCoordinates()[H];
-        int blankW = getBlankCoordinates()[W];
+        int blankR = getBlankCoordinates()[ROW];
+        int blankC = getBlankCoordinates()[COLUMN];
         if(neighbors.isEmpty()) {
-            if (isMoveValid(blankH + 1, blankW)) {
+            if (isMoveValid(blankR + 1, blankC)) {
                 SlidingPuzzle sp = new SlidingPuzzle(this);
                 sp.move("down");
                 neighbors.add(sp);
             }
-            if (isMoveValid(blankH, blankW + 1)) {
+            if (isMoveValid(blankR, blankC + 1)) {
                 SlidingPuzzle sp = new SlidingPuzzle(this);
                 sp.move("right");
                 neighbors.add(sp);
             }
-            if (isMoveValid(blankH, blankW - 1)) {
+            if (isMoveValid(blankR, blankC - 1)) {
                 SlidingPuzzle sp = new SlidingPuzzle(this);
                 sp.move("left");
                 neighbors.add(sp);
             }
-            if (isMoveValid(blankH - 1, blankW)) {
+            if (isMoveValid(blankR - 1, blankC)) {
                 SlidingPuzzle sp = new SlidingPuzzle(this);
                 sp.move("up");
                 neighbors.add(sp);
@@ -271,17 +211,18 @@ public class SlidingPuzzle {
         return neighbors;
     }
 
+    // TODO: goal is null
     // hamming function
-    public int misplacedTiles() {
+    public int hamming() {
         int outOfPlace = 0;
-        int h = 0, w = 0;
-        for (; h < height; h++) {
-            w = 0;
-            for (; w < width; w++) {
-                if (currentState[h][w] == blank) continue;
-                int goalH = goal.get(currentState[h][w])[H];
-                int goalW = goal.get(currentState[h][w])[W];
-                if (goalH != h || goalW != w)
+        int r = 0, c = 0;
+        for (; r < rows; r++) {
+            c = 0;
+            for (; c < columns; c++) {
+                if (currentState[r][c] == blank) continue;
+                int goalR = goal.get(currentState[r][c])[ROW];
+                int goalC = goal.get(currentState[r][c])[COLUMN];
+                if (goalR != r || goalC != c)
                     outOfPlace++;
             }
         }
@@ -292,14 +233,14 @@ public class SlidingPuzzle {
     public int manhattan() {
         int manhattan = 0;
         // count manhattan
-        int h = 0, w = 0;
-        for (; h < height; h++) {
-            w = 0;
-            for (; w < width; w++) {
-                if (currentState[h][w] == blank) continue;
-                int goalH = goal.get(currentState[h][w])[H];
-                int goalW = goal.get(currentState[h][w])[W];
-                manhattan += Math.abs(goalH - h) + Math.abs(goalW - w);
+        int r = 0, c = 0;
+        for (; r < rows; r++) {
+            c = 0;
+            for (; c < columns; c++) {
+                if (currentState[r][c] == blank) continue;
+                int goalR = goal.get(currentState[r][c])[ROW];
+                int goalC = goal.get(currentState[r][c])[COLUMN];
+                manhattan += Math.abs(goalR - r) + Math.abs(goalC - c);
             }
         }
         return manhattan;
@@ -317,8 +258,8 @@ public class SlidingPuzzle {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SlidingPuzzle that = (SlidingPuzzle) o;
-        for (int h = 0; h < height; h++) {
-            result = result && Arrays.equals(that.currentState[h], this.currentState[h]);
+        for (int r = 0; r < rows; r++) {
+            result = result && Arrays.equals(that.currentState[r], this.currentState[r]);
         }
         return result;
     }

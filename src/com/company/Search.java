@@ -30,7 +30,7 @@ public abstract class Search {
 
             // calculate heuristic
             if (SearchNode.typeHeuristic.equals("h1")) {
-                this.heuristic = board.misplacedTiles();
+                this.heuristic = board.hamming();
             } else {
                 this.heuristic = board.manhattan();
             }

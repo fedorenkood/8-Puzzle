@@ -91,7 +91,6 @@ public class CommandReader {
             invalidCommand();
     }
 
-
     /**
      * continuously retrieves the commands the user feeds to the program
      * @param filename
@@ -209,6 +208,30 @@ public class CommandReader {
             e.printStackTrace();
         }
 
+    }
+
+
+    public static char[][] stringPuzzleReader(String[] rows) throws InconsistentMeasures {
+        int maxColumns = rows[0].length();
+        int maxRows = rows.length;
+        char[][] charState = new char[maxRows][maxColumns];
+
+        for (int r = 0; r < maxRows; r++) {
+
+            if (maxColumns == rows[r].length()) {
+                for (int c = 0; c < maxColumns; c++) {
+                    charState[r][c] = rows[r].charAt(c);
+                }
+            }
+            else {
+                throw new InconsistentMeasures("columns is wrong at " + r);
+            }
+        }
+
+        if (maxColumns < 3 || maxRows < 3) {
+            throw new InconsistentMeasures("The measures are too small");
+        }
+        return charState;
     }
 
 
