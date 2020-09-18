@@ -13,15 +13,12 @@ solve beam <30>
 solve beam <32>
 
 
-setState <b123 4567 89cd efgh>
-printStateInt
-randomizeState <1000>
-printStateInt
 maxNodes <2000000>
+setState <b123 4567 89cd efgh>
+randomizeState <1000>
+printState
 solve beam <1000>
 
-
 readMatrixFile <TestFiles/puzzle04.txt>
-maxNodes <2000000>
 solve beam <40>
 solve A-star <h2>

@@ -152,14 +152,15 @@ public class SlidingPuzzle {
                 int number = (int) currentState[r][c];
                 out.append(number);
                 if (number < 10) {
-                    out.append("   ");
-                } else if (number < 100) {
-                    out.append("  ");
-                } else {
                     out.append(" ");
                 }
+                if (c != columns - 1)
+                    out.append(" ");
             }
             out.append("]");
+            if (r != rows - 1)
+                out.append("\n");
+
         }
         System.out.println(out);
     }
@@ -170,7 +171,10 @@ public class SlidingPuzzle {
     public void printState() {
         StringBuilder out = new StringBuilder();
         for (int r = 0; r < rows; r++) {
-            out.append(Arrays.toString(currentState[r])).append("\n");
+            out.append(Arrays.toString(currentState[r]));
+
+            if (r != rows - 1)
+                out.append("\n");
         }
         System.out.println(out);
     }

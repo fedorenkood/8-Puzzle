@@ -113,11 +113,8 @@ public class Main {
         }*/
         //cr.getUserInput();
 
-
-        // TODO: solve problem
-        // TODO: read matrix
-        // TODO: output ints
         // TODO: everything must look nice
+        // TODO: expand commands.txt
 
         CommandReader commandReader = new CommandReader();
         File root = null;

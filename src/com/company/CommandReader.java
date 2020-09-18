@@ -238,7 +238,7 @@ public class CommandReader {
             char[][] currentState = CommandReader.stringPuzzleReader(rows);
             char[][] goalState = CommandReader.findGoal(currentState, 'b');
             this.board = new SlidingPuzzle(currentState, goalState, 'b');
-            System.out.println("\nState is set to: ");
+            System.out.println("\n\n\nState is set to: ");
             board.printState();
         } catch (InconsistentMeasures inconsistentMeasures) {
             System.out.println(inconsistentMeasures.getMessage());
@@ -315,7 +315,7 @@ public class CommandReader {
             // create the board with newly scanned from file
             char[][] goalState = CommandReader.findGoal(currentState, (char) 0);
             this.board = new SlidingPuzzle(currentState, goalState, (char) 0);
-            System.out.println("\nState is set to: ");
+            System.out.println("\n\n\nState is set to: ");
             board.printStateInt();
 
         } catch (FileNotFoundException | URISyntaxException e) {
