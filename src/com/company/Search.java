@@ -1,9 +1,8 @@
 package com.company;
 
-import org.w3c.dom.Node;
-
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -43,6 +42,10 @@ public abstract class Search {
             }
 
             // count priority
+            countPriority();
+        }
+
+        public void countPriority() {
             this.priority = this.moves + this.heuristic;
         }
 
@@ -73,12 +76,16 @@ public abstract class Search {
     protected List<SlidingPuzzle> dequer = new ArrayList<>();
 
     /**
-     * @param initial
-     * @param maxNodes
+     * @param initial initial state of the board
+     * @param maxNodes the maximum number of nodes to explore
      */
     public Search(SlidingPuzzle initial, int maxNodes) {
         this.initial = initial;
         this.maxNodes = maxNodes;
+    }
+
+    public SearchNode getCurrent() {
+        return current;
     }
 
     /**
@@ -94,7 +101,7 @@ public abstract class Search {
      */
     public int moves() {
         if(isSolvable())
-            return current.moves;
+            return getCurrent().moves;
         else return -1;
     }
 
@@ -111,7 +118,7 @@ public abstract class Search {
     public Iterable<SlidingPuzzle> solution() {
         // solve
         this.solve();
-        SearchNode temp = new SearchNode(current.board,current.previousNode);
+        SearchNode temp = new SearchNode(getCurrent().board,getCurrent().previousNode);
 
         // solve changes solvable state. If it is solvable, the solution will be returned
         if(isSolvable()) {

@@ -1,13 +1,8 @@
 package com.company;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -25,7 +20,7 @@ public class CommandReader {
 
     /**
      * processes the arguments fed to the program by the user or from a file
-     * @param args
+     * @param args gets the argument array
      */
     public void processArguments(String[] args) {
 
@@ -102,7 +97,7 @@ public class CommandReader {
 
     /**
      * continuously retrieves the commands the user feeds to the program
-     * @param file
+     * @param file reads the command file
      */
     public void getFileInput(File file) {
         Scanner scanner = null;
@@ -176,7 +171,7 @@ public class CommandReader {
 
 
     /**
-     * @param nodesLimit
+     * @param nodesLimit sets node limit
      */
     private void maxNodes(int nodesLimit) {
         this.nodesLimit = nodesLimit;
@@ -185,7 +180,7 @@ public class CommandReader {
 
 
     /**
-     * @param direction
+     * @param direction moves in specified direction
      */
     private void move(String direction) {
         if (board != null) {
@@ -198,7 +193,7 @@ public class CommandReader {
 
 
     /**
-     * @param heuristic
+     * @param heuristic sets heuristic and solves the puzzle
      */
     private void solveAStar(String heuristic) {
         if (board != null) {
@@ -214,7 +209,7 @@ public class CommandReader {
     }
 
     /**
-     * @param beamWidth
+     * @param beamWidth sets beam width and solves the puzzle
      */
     private void solveBeam(int beamWidth) {
         if (board != null) {
@@ -230,7 +225,7 @@ public class CommandReader {
     }
 
     /**
-     * @param rows
+     * @param rows sets state from the array of rows.
      */
     private void setState(String[] rows) {
         // System.out.println("Note: blank is the first element in the ordered queue of your input, unless specified");
@@ -247,7 +242,7 @@ public class CommandReader {
     }
 
     /**
-     *
+     * prints current state in chars
      */
     private void printState() {
         if (board != null) {
@@ -259,7 +254,7 @@ public class CommandReader {
     }
 
     /**
-     *
+     * prints current state in ints
      */
     private void printStateInt() {
         if (board != null) {
@@ -271,7 +266,7 @@ public class CommandReader {
     }
 
     /**
-     * @param numMoves
+     * @param numMoves randomize state by the number of moves
      */
     private void randomizeState(int numMoves) {
         if (board != null) {
@@ -283,7 +278,7 @@ public class CommandReader {
     }
 
     /**
-     * @param matrixFile
+     * @param matrixFile the filiname with matrix code
      */
     public void matrixPuzzleReader(String matrixFile) {
         try {
@@ -328,9 +323,9 @@ public class CommandReader {
 
 
     /**
-     * @param rows
-     * @return
-     * @throws InconsistentMeasures
+     * @param rows reads the rows of the matrix puzzle and transfers into array
+     * @return converted array of chars
+     * @throws InconsistentMeasures if the matrix is inconsistent
      */
     public static char[][] stringPuzzleReader(String[] rows) throws InconsistentMeasures {
         int maxColumns = rows[0].length();
@@ -356,9 +351,9 @@ public class CommandReader {
     }
 
     /**
-     * @param state
-     * @param blank
-     * @return
+     * @param state current state to know the symbols. Symbols are arranged in ascii order
+     * @param blank the blank char is excluded from sorting
+     * @return sorted array which is the goal
      */
     public static char[][] findGoal(char[][] state, Character blank) {
         int maxColumns = state[0].length;

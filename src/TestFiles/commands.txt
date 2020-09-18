@@ -19,6 +19,8 @@ randomizeState <1000>
 printState
 solve beam <1000>
 
+
 readMatrixFile <TestFiles/puzzle04.txt>
-solve beam <40>
 solve A-star <h2>
+solve beam <24>
+solve beam <26>

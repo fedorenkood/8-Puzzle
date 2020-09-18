@@ -7,6 +7,34 @@ import java.util.Set;
 public class BeamSearch extends Search{
     private int beamWidth;
 
+    // rewrite the priority funciton of the Search node
+
+    static class SearchNode extends Search.SearchNode {
+        /**
+         * @param board        initial board
+         * @param previousNode previous board
+         */
+        public SearchNode(SlidingPuzzle board, BeamSearch.SearchNode previousNode) {
+            super(board, previousNode);
+        }
+
+        @Override
+        public void countPriority() {
+            this.priority = this.heuristic;
+        }
+
+        @Override
+        public int compareTo(Search.SearchNode o) {
+            BeamSearch.SearchNode searchNode = (BeamSearch.SearchNode) o;
+            searchNode.countPriority();
+            if ( this.priority < searchNode.priority ) return -1;
+            else if (this.priority > searchNode.priority) return 1;
+            else return 0;
+        }
+    }
+
+    protected BeamSearch.SearchNode current;
+
     public BeamSearch(SlidingPuzzle initial, int maxNodes, int beamWidth) {
         super(initial, maxNodes);
         this.beamWidth = beamWidth;
@@ -14,17 +42,22 @@ public class BeamSearch extends Search{
     }
 
     @Override
+    public BeamSearch.SearchNode getCurrent() {
+        return current;
+    }
+
+    @Override
     protected void solve() {
         // PriorityQueue to keep nodes in order of exploration
-        PriorityQueue<SearchNode> pq = new PriorityQueue<>();
+        PriorityQueue<BeamSearch.SearchNode> pq = new PriorityQueue<>();
         // Beam search explores all of the nodes in the beamWidth and saves childred into a separate
         // PriorityQueue. Then, children are pruned, cleared and saved into pq
-        PriorityQueue<SearchNode> children = new PriorityQueue<>();
+        PriorityQueue<BeamSearch.SearchNode> children = new PriorityQueue<>();
         // add HashSet to avoid repeating
         Set<SlidingPuzzle> visited = new HashSet<>();
 
         // add initial state
-        current = new SearchNode(initial, null);
+        current = new BeamSearch.SearchNode(initial, null);
         pq.add(current);
         visited.add(initial);
 
@@ -36,11 +69,13 @@ public class BeamSearch extends Search{
             // add the neighbors if they were not visited yet
             for (SlidingPuzzle nb : current.board.neighbors()) {
                 // Make sure that current board does not equal to its predecessor and we did not visit it.
+                if (visited.contains(nb)) {
+                    boolean contains = true;
+                }
                 if ((current.previousNode == null || !nb.equals(current.previousNode.board)) && !visited.contains(nb)) {
                     // add node to children
-                    children.add(new SearchNode(nb, current));
+                    children.add(new BeamSearch.SearchNode(nb, current));
                     visited.add(nb);
-                    // debugging
                     exploredNodes++;
                 }
             }
@@ -62,11 +97,11 @@ public class BeamSearch extends Search{
      * @return new pruned queue
      */
     private PriorityQueue<SearchNode> pruneQueue(PriorityQueue<SearchNode> children) {
-        PriorityQueue<SearchNode> pruned = new PriorityQueue<>();
+        PriorityQueue<BeamSearch.SearchNode> pruned = new PriorityQueue<>();
         // children are pruned after the complete exploration of the beamWidth
         while (!children.isEmpty() && pruned.size() < beamWidth) {
             // copy the nodes off the top of the queue until cutoff is reached
-            SearchNode child = children.poll();
+            BeamSearch.SearchNode child = children.poll();
             pruned.add(child);
         }
         // clear the children. Children of the selected nodes will be stored here

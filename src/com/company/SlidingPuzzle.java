@@ -1,11 +1,6 @@
 package com.company;
 
-import java.awt.*;
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.List;
-
-import static java.util.Map.entry;
 
 public class SlidingPuzzle {
     private char[][] currentState;
@@ -19,6 +14,7 @@ public class SlidingPuzzle {
     private static final int ROW = 0;
     private static final int COLUMN = 1;
     private List<SlidingPuzzle> neighbors = new ArrayList<>();
+    private String hashString;
 
     /**
      *
@@ -30,18 +26,19 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @param currentState
-     * @param goalState
-     * @param blank
-     * @throws InconsistentMeasures
+     * @param currentState array containing current state of the board
+     * @param goalState array containing goal state of the board
+     * @param blank character that is moved
+     * @throws InconsistentMeasures if rows have different length
      */
-    // TODO: duplicate characters error
+    // TODO: duplicate characters error. different characters error. different r and c between current and goal
     SlidingPuzzle(char[][] currentState, char[][] goalState, char blank) throws InconsistentMeasures {
         this();
         // assigning the number of rows and columns from the passed array
         this.rows = currentState.length;
         this.columns = currentState[0].length;
         this.blank = blank;
+        this.hashString = "";
 
         // vetting both arrays before creating new arrays
         boolean consistent = this.vetState(currentState) && this.vetState(goalState);
@@ -49,8 +46,13 @@ public class SlidingPuzzle {
         // copy the elements if consistent
         if (consistent) {
             this.currentState = new char[rows][columns];
+            hashString = "";
             for (int r = 0; r < rows; r++) {
-                System.arraycopy(currentState[r], 0, this.currentState[r], 0, columns);
+                // System.arraycopy(currentState[r], 0, this.currentState[r], 0, columns);
+                for (int c = 0; c < columns; c++) {
+                    this.currentState[r][c] = currentState[r][c];
+                    hashString += hashMath(r, c, columns);
+                }
             }
 
             // find coordinates of the goal state
@@ -66,14 +68,20 @@ public class SlidingPuzzle {
         }
     }
 
+    private int hashMath (int r, int c, int columns) {
+        // return (int) (currentState[r][c] * Math.pow(10, c + r * (columns + 1)));
+        return currentState[r][c];
+    }
+
     /**
-     * @param puzzle
+     * @param puzzle copy constructor
      */
     SlidingPuzzle(SlidingPuzzle puzzle) {
         // assigning the number of rows and columns from the passed puzzle
         this.rows = puzzle.rows;
         this.columns = puzzle.columns;
         this.blank = puzzle.blank;
+        this.hashString = puzzle.hashString;
 
         this.currentState = new char[rows][columns];
         for (int r = 0; r < rows; r++) {
@@ -87,9 +95,9 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @param state
-     * @return
-     * @throws InconsistentMeasures
+     * @param state verifies the consistency of the length of rows
+     * @return true of consistent
+     * @throws InconsistentMeasures if inconsistent
      */
     private boolean vetState(char[][] state) throws InconsistentMeasures {
         int maxColumns = state[0].length;
@@ -112,28 +120,26 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @return
+     * @return blank coordinates [r,c]
      */
     public int[] getBlankCoordinates() {
         return blankCoordinates;
     }
 
     /**
-     * @param blankCoordinates
+     * @param blankCoordinates set blank coordinates new int[]{r,c}
      */
     public void setBlankCoordinates(int[] blankCoordinates) {
         this.blankCoordinates = blankCoordinates;
     }
 
     /**
-     *
+     * finds the coordinates of the blank
      */
     public void findBlank () {
         // blank position
-        int r = 0, c = 0;
-        for (; r < rows; r++) {
-            c = 0;
-            for (; c < columns; c++) {
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
                 if (this.currentState[r][c] == blank) {
                     setBlankCoordinates(new int[]{r, c});
                 }
@@ -142,14 +148,14 @@ public class SlidingPuzzle {
     }
 
     /**
-     *
+     * print the characters as integers
      */
     public void printStateInt() {
         StringBuilder out = new StringBuilder();
         for (int r = 0; r < rows; r++) {
             out.append("[");
             for (int c = 0; c < columns; c++) {
-                int number = (int) currentState[r][c];
+                int number = currentState[r][c];
                 out.append(number);
                 if (number < 10) {
                     out.append(" ");
@@ -166,7 +172,7 @@ public class SlidingPuzzle {
     }
 
     /**
-     *
+     * print as characters
      */
     public void printState() {
         StringBuilder out = new StringBuilder();
@@ -180,14 +186,14 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @param move
+     * @param move move direction
      */
     public void move(String move) {
         int blankR = getBlankCoordinates()[ROW];
         int blankC = getBlankCoordinates()[COLUMN];
 
         // Move the char
-        char toMove = ' ';
+        char toMove;
         int charR = blankR;
         int charC = blankC;
 
@@ -203,6 +209,14 @@ public class SlidingPuzzle {
             currentState[blankR][blankC] = toMove;
             currentState[charR][charC] = blank;
             setBlankCoordinates(new int[]{charR, charC});
+
+            // recalculate hash
+            hashString = "";
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    hashString += hashMath(r, c, columns);
+                }
+            }
         } else {
             try {
                 throw new InvalidMove("Move " + move + " is invalid");
@@ -214,21 +228,20 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @param rows
-     * @param columns
-     * @return
+     * vets the coordinates of the move for blank
+     * @param rows destination row
+     * @param columns destination column
+     * @return true if possible
      */
     private boolean isMoveValid (int rows, int columns) {
         return rows < this.rows && columns < this.columns && rows >= 0 && columns >= 0;
     }
 
     /**
-     * @param n
+     * @param n number of random moves
      */
     public void randomizeState(int n) {
         int moves = 0;
-        // debug
-        int up = 0, down = 0, left = 0, right = 0;
         while (moves < n) {
             int rand = (int) (Math.random() * 4.0);
 
@@ -250,25 +263,14 @@ public class SlidingPuzzle {
                     case 1 -> this.move("right");
                 }
                 moves++;
-                // debug
-                /*switch (rand) {
-                    case 2 -> up++;
-                    case 3 -> down++;
-                    case 0 -> left++;
-                    case 1 -> right++;
-                }
-                System.out.println("Move: " + moves);
-                this.printState();*/
             }
         }
-        // debug
-        //System.out.println(String.format("Up: %d Down: %d Left: %d Right: %d", up, down, left, right));
     }
 
     /**
-     * @return
+     * all neighboring boards
+     * @return the states one move away
      */
-    // all neighboring boards
     public Iterable<SlidingPuzzle> neighbors() {
         int blankR = getBlankCoordinates()[ROW];
         int blankC = getBlankCoordinates()[COLUMN];
@@ -298,15 +300,13 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @return
+     * hamming function
+     * @return number of misplaced tiles
      */
-    // hamming function
     public int hamming() {
         int outOfPlace = 0;
-        int r = 0, c = 0;
-        for (; r < rows; r++) {
-            c = 0;
-            for (; c < columns; c++) {
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
                 if (currentState[r][c] == blank) continue;
                 int goalR = goal.get(currentState[r][c])[ROW];
                 int goalC = goal.get(currentState[r][c])[COLUMN];
@@ -318,15 +318,15 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @return
+     * manhattan function
+     * @return sum of distances of misplaced tiles to goal positions
      */
     public int manhattan() {
         int manhattan = 0;
         // count manhattan
-        int r = 0, c = 0;
-        for (; r < rows; r++) {
-            c = 0;
-            for (; c < columns; c++) {
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < columns; c++) {
                 if (currentState[r][c] == blank) continue;
                 int goalR = goal.get(currentState[r][c])[ROW];
                 int goalC = goal.get(currentState[r][c])[COLUMN];
@@ -337,18 +337,16 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @return
+     * @return is current board the goal board
      */
-    // is this board the goal board?
     public boolean isGoal() {
         return manhattan() == 0;
     }
 
     /**
-     * @param o
-     * @return
+     * @param o object
+     * @return true if current states are the same
      */
-    // does this board equal o
     @Override
     public boolean equals(Object o) {
         boolean result = true;
@@ -362,13 +360,19 @@ public class SlidingPuzzle {
     }
 
     /**
-     * @return
+     * @return hash code of the this board
      */
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(currentState);
-        result = 31 * result + Arrays.hashCode(blankCoordinates);
-        return result;
+        if (hashString == "") {
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < columns; c++) {
+                    hashString += hashMath(r, c, columns);
+                }
+            }
+        }
+        // return Arrays.hashString(currentState);
+        return hashString.hashCode();
     }
 }
 

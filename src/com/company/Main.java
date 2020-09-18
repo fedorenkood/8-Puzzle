@@ -2,7 +2,7 @@ package com.company;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.logging.FileHandler;
 
 public class Main {
@@ -115,6 +115,7 @@ public class Main {
 
         // TODO: everything must look nice
         // TODO: expand commands.txt
+        // TODO: add print solution
 
         CommandReader commandReader = new CommandReader();
         File root = null;
@@ -125,5 +126,41 @@ public class Main {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
+
+        String state = "b123 4567 89cd efgh";
+        String goal = "b123 4567 89cd efgh";
+        try {
+            SlidingPuzzle sp = new SlidingPuzzle(CommandReader.stringPuzzleReader(state.split(" ")), CommandReader.stringPuzzleReader(goal.split(" ")), 'b');
+            int maxNodes = 2000000;
+            int beamWidth = 1000;
+            sp.randomizeState(100);
+            sp.printState();
+            BeamSearch Beam = new BeamSearch(sp, maxNodes, beamWidth);
+            Beam.solve();
+            System.out.println("Beam: ");
+            System.out.println(Beam.moves());
+            System.out.println(Beam.getExploredNodes());
+
+            for (SlidingPuzzle s : Beam.solution()) {
+                //s.printState();
+                //System.out.println();
+            }
+
+            Map<SlidingPuzzle, Boolean> visited = new HashMap<>();
+
+            // add initial state
+            visited.put(sp, true);
+            boolean contains = visited.containsKey(new SlidingPuzzle(sp));
+            if (contains) {
+                visited.size();
+            }
+        } catch (InconsistentMeasures inconsistentMeasures) {
+            inconsistentMeasures.printStackTrace();
+        }
+
+
+
+
     }
 }
